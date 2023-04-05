@@ -8,7 +8,6 @@
       user:
         name: loja
         state: present
-        password_locked: yes
 
     - name: Instalar pacote necessário para manipular arquivos DConf
       yum:
