@@ -1,6 +1,5 @@
 ---
 - name: Playbook para criar usuário 'loja', configurar login automático e desativar bloqueio de tela no RHEL
-  hosts: rhel
   become: yes
   tasks:
 
