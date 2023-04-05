@@ -9,28 +9,28 @@
         name: loja
         state: present
 
-    - name: Instalar pacote necessário para manipular arquivos DConf
-      yum:
-        name: dconf
-        state: present
+
+    - name: Criar seção [daemon] no arquivo custom.conf, se não existir
+      lineinfile:
+        path: /etc/gdm/custom.conf
+        line: '[daemon]'
+        insertafter: '^# GDM configuration storage'
+        create: yes
 
     - name: Configurar GDM para login automático do usuário 'loja'
       lineinfile:
         path: /etc/gdm/custom.conf
+        insertafter: '^\[daemon\]'
         regexp: '^AutomaticLoginEnable='
         line: 'AutomaticLoginEnable=True'
-        create: yes
-      notify:
-        - restart_gdm
 
     - name: Configurar usuário automático no GDM
       lineinfile:
         path: /etc/gdm/custom.conf
+        insertafter: '^\[daemon\]'
         regexp: '^AutomaticLogin='
         line: 'AutomaticLogin=loja'
-        create: yes
-      notify:
-        - restart_gdm
+
 
     - name: Desativar bloqueio de tela por inatividade no GNOME
       become_user: loja
