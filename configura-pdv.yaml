@@ -1,0 +1,47 @@
+---
+- name: Playbook para criar usuário 'loja', configurar login automático e desativar bloqueio de tela no RHEL
+  hosts: rhel
+  become: yes
+  tasks:
+
+    - name: Criar usuário 'loja' sem senha
+      user:
+        name: loja
+        state: present
+        password_locked: yes
+
+    - name: Instalar pacote necessário para manipular arquivos DConf
+      yum:
+        name: dconf
+        state: present
+
+    - name: Configurar GDM para login automático do usuário 'loja'
+      lineinfile:
+        path: /etc/gdm/custom.conf
+        regexp: '^AutomaticLoginEnable='
+        line: 'AutomaticLoginEnable=True'
+        create: yes
+      notify:
+        - restart_gdm
+
+    - name: Configurar usuário automático no GDM
+      lineinfile:
+        path: /etc/gdm/custom.conf
+        regexp: '^AutomaticLogin='
+        line: 'AutomaticLogin=loja'
+        create: yes
+      notify:
+        - restart_gdm
+
+    - name: Desativar bloqueio de tela por inatividade no GNOME
+      become_user: loja
+      dconf:
+        key: /org/gnome/desktop/screensaver/lock-enabled
+        value: 'false'
+
+  handlers:
+    - name: restart_gdm
+      systemd:
+        name: gdm
+        state: restarted
+
